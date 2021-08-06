@@ -1,0 +1,26 @@
+name: Convert README to PDF
+
+on: [push]
+
+jobs:
+  convert_via_pandoc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - run: mkdir output
+
+      - name: Create file list
+        id: file_list
+        run: |
+          echo "::set-output name=files::$(printf '"%s" ' my_book/*.md)"
+
+      - uses: docker://pandoc/latex:latest
+        with:
+          args: "--standalone -o output/my_book.pdf ${{ steps.file_list.outputs.files }}"
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: output
+          path: output
